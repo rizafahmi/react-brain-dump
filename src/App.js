@@ -35,7 +35,7 @@ class App extends Component {
       id: nanoid(10),
       text,
       x: items[items.length - 1].x,
-      y: items[items.length - 1].y + 30
+      y: items[items.length - 1].y + 60
     }
     this.setState({
       items: [...items, newItem],
