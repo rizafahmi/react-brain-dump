@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import nanoid from 'nanoid'
+import _ from 'lodash'
 
 import BrainDump from './components/BrainDump'
 
@@ -8,7 +9,9 @@ class App extends Component {
     super()
 
     this.state = {
+      editMode: false,
       text: '',
+      currentItem: null,
       items: [
         {
           text: 'Brain dump',
@@ -20,8 +23,10 @@ class App extends Component {
     }
   }
   handleChange (e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && this.state.editMode === false) {
       this.newItem()
+    } else if (e.key === 'Enter' && this.state.editMode === true) {
+      this.editItem()
     }
   }
   newItem () {
@@ -34,7 +39,28 @@ class App extends Component {
     }
     this.setState({
       items: [...items, newItem],
-      text: ''
+      text: '',
+      editMode: false
+    })
+  }
+  editItem () {
+    const { items, currentItem, text } = this.state
+
+    const newItems = items.filter(item => item.id !== currentItem.id)
+    currentItem.text = text
+    this.setState({
+      items: [...newItems, currentItem],
+      text: '',
+      currentItem: null,
+      editMode: false
+    })
+  }
+  handleItemClick (id) {
+    const currentItem = _.find(this.state.items, { id })
+    this.setState({
+      text: currentItem.text,
+      currentItem,
+      editMode: true
     })
   }
   render () {
@@ -48,10 +74,17 @@ class App extends Component {
           autoFocus
           placeholder="What's on your mind?"
           value={this.state.text}
+          ref={input => {
+            input && input.focus()
+          }}
         />
         <div className='dumpArea'>
           {this.state.items.map(item => (
-            <BrainDump key={item.id} item={item} />
+            <BrainDump
+              key={item.id}
+              item={item}
+              handleItemClick={id => this.handleItemClick(id)}
+            />
           ))}
         </div>
       </div>
